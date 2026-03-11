@@ -168,6 +168,7 @@ videoUpload.addEventListener('change', (e) => {
     if (file) {
         const url = URL.createObjectURL(file);
         videoPlayer.src = url;
+        videoPlayer.muted = false; // Ensure sound for uploaded videos
         videoContainer.style.display = 'block';
         
         // When video plays, start listening
@@ -191,6 +192,7 @@ async function startCamera() {
         cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         videoPlayer.srcObject = cameraStream;
         videoPlayer.src = ''; // Clear file src if any
+        videoPlayer.muted = true; // Prevent feedback loop
         videoContainer.style.display = 'block';
         videoPlayer.play();
         cameraBtn.querySelector('span').textContent = '🚫 Stop Camera';
