@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TransLive | Voice Translator</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <main class="app-container">
+        <header>
+            <h1 class="logo">Trans<span>Live</span></h1>
+            <p class="subtitle">Real-time voice translation</p>
+        </header>
+
+        <section class="controls">
+            <div class="toggle-container">
+                <span class="toggle-label" id="lang-label-left">English</span>
+                <label class="switch">
+                    <input type="checkbox" id="lang-toggle">
+                    <span class="slider round"></span>
+                </label>
+                <span class="toggle-label" id="lang-label-right">Finnish</span>
+            </div>
+        </section>
+
+        <section class="translation-grid">
+            <div class="glass-card input-card">
+                <div class="card-header">
+                    <span class="indicator" id="status-indicator"></span>
+                    <span id="input-lang-tag">Listening...</span>
+                </div>
+                <div class="text-area" id="speech-result" placeholder="Speak now..."></div>
+            </div>
+
+            <div class="glass-card output-card">
+                <div class="card-header">
+                    <span>Translation</span>
+                </div>
+                <div class="text-area" id="translation-result" placeholder="Translation will appear here..."></div>
+            </div>
+        </section>
+
+        <footer class="status-bar">
+            <button id="start-btn" class="primary-btn">Start Listening</button>
+            <p id="error-msg" class="error"></p>
+        </footer>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
