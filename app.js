@@ -1,12 +1,7 @@
-const langToggle = document.getElementById('lang-toggle');
-const startBtn = document.getElementById('start-btn');
-const speechResult = document.getElementById('speech-result');
-const translationResult = document.getElementById('translation-result');
-const statusIndicator = document.getElementById('status-indicator');
-const errorMsg = document.getElementById('error-msg');
-const inputLangTag = document.getElementById('input-lang-tag');
-const langLabelLeft = document.getElementById('lang-label-left');
-const langLabelRight = document.getElementById('lang-label-right');
+const videoUpload = document.getElementById('video-upload');
+const videoPlayer = document.getElementById('video-player');
+const videoContainer = document.getElementById('video-container');
+const subtitleOverlay = document.getElementById('subtitle-overlay');
 
 let recognition;
 let isListening = false;
@@ -36,8 +31,10 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
 
     recognition.onerror = (event) => {
         console.error('Speech recognition error:', event.error);
-        errorMsg.textContent = `Error: ${event.error}`;
-        stopListening();
+        if (event.error !== 'no-speech') {
+            errorMsg.textContent = `Error: ${event.error}`;
+            stopListening();
+        }
     };
 
     recognition.onresult = (event) => {
@@ -55,8 +52,9 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         const currentText = finalTranscript || interimTranscript;
         if (currentText) {
             speechResult.textContent = currentText;
+            updateSubtitles(currentText);
             
-            // Translate after a short delay to avoid overwhelming the API
+            // Translate after a short delay
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
                 translateText(currentText);
@@ -66,6 +64,14 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
 } else {
     errorMsg.textContent = 'Web Speech API is not supported in this browser.';
     startBtn.disabled = true;
+}
+
+function updateSubtitles(text) {
+    if (!text) {
+        subtitleOverlay.innerHTML = '';
+        return;
+    }
+    subtitleOverlay.innerHTML = `<span class="subtitle-entry">${text}</span>`;
 }
 
 function updateLanguages() {
@@ -86,6 +92,7 @@ function updateLanguages() {
     // Clear areas when switching
     speechResult.textContent = '';
     translationResult.textContent = '';
+    subtitleOverlay.innerHTML = '';
 }
 
 async function translateText(text) {
@@ -95,7 +102,6 @@ async function translateText(text) {
     const sourceLang = isEnToFi ? 'en' : 'fi';
     const targetLang = isEnToFi ? 'fi' : 'en';
 
-    // Using MyMemory API (Free and fast for small requests)
     const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${sourceLang}|${targetLang}`;
 
     try {
@@ -103,17 +109,25 @@ async function translateText(text) {
         const data = await response.json();
         
         if (data.responseData) {
-            translationResult.textContent = data.responseData.translatedText;
+            const translated = data.responseData.translatedText;
+            translationResult.textContent = translated;
+            // Update subtitles with translation if it's a video
+            if (videoPlayer.src) {
+               updateSubtitles(`${text}<br><span style="font-size:0.9em;opacity:0.8;">${translated}</span>`);
+            }
         }
     } catch (error) {
         console.error('Translation error:', error);
-        errorMsg.textContent = 'Translation failed. Please check your connection.';
     }
 }
 
 function startListening() {
     updateLanguages();
-    recognition.start();
+    try {
+        recognition.start();
+    } catch (e) {
+        console.log("Already listening");
+    }
 }
 
 function stopListening() {
@@ -132,8 +146,31 @@ langToggle.addEventListener('change', () => {
     updateLanguages();
     if (isListening) {
         stopListening();
-        // Wait a bit for it to stop before restarting with new language
         setTimeout(() => startListening(), 300);
+    }
+});
+
+// Video Handling
+videoUpload.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        const url = URL.createObjectURL(file);
+        videoPlayer.src = url;
+        videoContainer.style.display = 'block';
+        
+        // When video plays, start listening
+        videoPlayer.onplay = () => {
+            startListening();
+        };
+        
+        // When video pauses, stop listening
+        videoPlayer.onpause = () => {
+            stopListening();
+        };
+
+        videoPlayer.onended = () => {
+            stopListening();
+        };
     }
 });
 

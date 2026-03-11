@@ -30,6 +30,20 @@
                 </label>
                 <span class="toggle-label" id="lang-label-right">Finnish</span>
             </div>
+            
+            <div class="video-controls">
+                <label for="video-upload" class="secondary-btn">
+                    <span>📁 Upload Video</span>
+                    <input type="file" id="video-upload" accept="video/*" hidden>
+                </label>
+            </div>
+        </section>
+
+        <section class="video-section" id="video-container" style="display: none;">
+            <div class="glass-card video-card">
+                <video id="video-player" controls></video>
+                <div id="subtitle-overlay" class="subtitle-overlay"></div>
+            </div>
         </section>
 
         <section class="translation-grid">
