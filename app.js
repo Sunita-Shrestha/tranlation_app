@@ -1,3 +1,13 @@
+const langToggle = document.getElementById('lang-toggle');
+const startBtn = document.getElementById('start-btn');
+const speechResult = document.getElementById('speech-result');
+const translationResult = document.getElementById('translation-result');
+const statusIndicator = document.getElementById('status-indicator');
+const errorMsg = document.getElementById('error-msg');
+const inputLangTag = document.getElementById('input-lang-tag');
+const langLabelLeft = document.getElementById('lang-label-left');
+const langLabelRight = document.getElementById('lang-label-right');
+const videoUpload = document.getElementById('video-upload');
 const videoPlayer = document.getElementById('video-player');
 const videoContainer = document.getElementById('video-container');
 const subtitleOverlay = document.getElementById('subtitle-overlay');
@@ -112,8 +122,8 @@ async function translateText(text) {
         if (data.responseData) {
             const translated = data.responseData.translatedText;
             translationResult.textContent = translated;
-            // Update subtitles with translation if it's a video
-            if (videoPlayer.src) {
+            // Update subtitles with translation if a video source is active
+            if (videoPlayer.src || videoPlayer.srcObject) {
                updateSubtitles(`${text}<br><span style="font-size:0.9em;opacity:0.8;">${translated}</span>`);
             }
         }
