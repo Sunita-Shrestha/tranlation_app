@@ -1,11 +1,12 @@
-const videoUpload = document.getElementById('video-upload');
 const videoPlayer = document.getElementById('video-player');
 const videoContainer = document.getElementById('video-container');
 const subtitleOverlay = document.getElementById('subtitle-overlay');
+const cameraBtn = document.getElementById('camera-btn');
 
 let recognition;
 let isListening = false;
 let debounceTimer;
+let cameraStream = null;
 
 // Initialize Web Speech API
 if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
@@ -152,6 +153,7 @@ langToggle.addEventListener('change', () => {
 
 // Video Handling
 videoUpload.addEventListener('change', (e) => {
+    stopCamera(); // Stop camera if active
     const file = e.target.files[0];
     if (file) {
         const url = URL.createObjectURL(file);
@@ -171,6 +173,39 @@ videoUpload.addEventListener('change', (e) => {
         videoPlayer.onended = () => {
             stopListening();
         };
+    }
+});
+
+async function startCamera() {
+    try {
+        cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        videoPlayer.srcObject = cameraStream;
+        videoPlayer.src = ''; // Clear file src if any
+        videoContainer.style.display = 'block';
+        videoPlayer.play();
+        cameraBtn.querySelector('span').textContent = '🚫 Stop Camera';
+        startListening();
+    } catch (err) {
+        console.error("Camera access denied:", err);
+        errorMsg.textContent = "Error: Camera access denied.";
+    }
+}
+
+function stopCamera() {
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+        videoPlayer.srcObject = null;
+        cameraBtn.querySelector('span').textContent = '📷 Live Camera';
+        stopListening();
+    }
+}
+
+cameraBtn.addEventListener('click', () => {
+    if (cameraStream) {
+        stopCamera();
+    } else {
+        startCamera();
     }
 });
 
